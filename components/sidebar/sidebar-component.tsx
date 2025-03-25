@@ -108,12 +108,3 @@ export function SidebarComponent({
     </SidebarProvider>
   );
 }
-{/* <SidebarComponent
-logo={<Image src="/logo.jpeg" alt="Logo" width={100} height={100} />}
-companyName="Study portal"
-navigationItems={adminNavigation}
-headerUserNav={<UserNavWrapper />}
-breadcrumbItems={{ items: adminBreadcrumb }}
->
-{children}
-</SidebarComponent> */}
