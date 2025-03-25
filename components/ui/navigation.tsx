@@ -40,17 +40,13 @@ export const adminNavigation: SidebarGroup[] = [
     ],
   },
   {
-    title: "Groups",
-    url: "/group",
+    title: "Chats",
+    url: "/chats",
     items: [
       {
-        title: "view groups",
-        url: "/group",
+        title: "view chats",
+        url: "/chats",
       },
-    {
-        title:"Add groups",
-        url:"/group/create"
-      }
     ],
   },
  

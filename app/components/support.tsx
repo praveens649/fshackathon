@@ -113,9 +113,9 @@ export default function Support() {
     }
   };
 
-  const initiateChat = async (creatorId: string, taskId: string) => {
+  const initiateChat = async (creatorId: string) => {
     // Navigate to the chat page for this task, passing the creator's user_id
-    router.push(`/support/${taskId}/chat?otherUserId=${creatorId}`);
+    router.push(`chats/${creatorId}`);
   };
 
   const filteredTasks = tasks.filter(task => 
