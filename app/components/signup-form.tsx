@@ -1,15 +1,14 @@
-"use client"
-import { useState, useEffect } from "react";
+"use client";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuthService } from "@/app/backend/auth.service";
-
-
-
-
+import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation"; 
 
 interface SignUpFormData {
   password: string;
@@ -18,6 +17,7 @@ interface SignUpFormData {
 }
 
 const SignUpForm = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState<SignUpFormData>({
     password: "",
     confirmPassword: "",
@@ -25,10 +25,8 @@ const SignUpForm = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
 
- 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -40,102 +38,97 @@ const SignUpForm = () => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-
+  
     try {
-
-
-      if (!formData.email) {
-        throw new Error("Email is required");
-      }
-
-      if (formData.password.length < 8) {
+      if (!formData.email) throw new Error("Email is required");
+      if (formData.password.length < 8)
         throw new Error("Password must be at least 8 characters");
-      }
-
-      if (formData.password !== formData.confirmPassword) {
+      if (formData.password !== formData.confirmPassword)
         throw new Error("Passwords do not match");
-      }
-
-      // Call auth service to handle signup
+  
       const authService = new AuthService();
       const { user } = await authService.signUp({
         email: formData.email,
         password: formData.password,
       });
-
-
-      // TODO: Redirect to dashboard or login page
-      console.log("User signed up successfully!");
+  
+      console.log("User signed up successfully!", user);
+      router.push("/login"); // 👈 redirect to login page
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred during signup");
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-10">
-      <CardHeader>
-        <CardTitle>Sign Up</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-white to-slate-200 px-4 py-8">
+      <Card className="w-full max-w-md shadow-xl border border-muted/30 animate-fade-in">
+        <CardHeader className="text-center space-y-1">
+          <CardTitle className="text-2xl font-semibold tracking-tight">
+            Create your account
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Enter your email and password to sign up
+          </p>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="example@domain.com"
+                value={formData.email}
+                onChange={handleChange}
+                className="focus-visible:ring-2 focus-visible:ring-primary"
+              />
+            </div>
 
-          {/* Email Field */}
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Enter your email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
 
-          {/* Password Field */}
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <Button
+              type="submit"
+              className="w-full cursor-pointer"
+              disabled={isLoading}
+              
+            >
+              {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Sign Up
+            </Button>
 
-          {/* Confirm Password Field */}
-          <div>
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              placeholder="Confirm your password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
-          </div>
-
-         
-
-        
-
-          {/* Submit Button */}
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Signing up..." : "Sign Up"}
-          </Button>
-
-          {error && (
-            <p className="text-sm text-red-500 mt-2">{error}</p>
-          )}
-        </form>
-      </CardContent>
-    </Card>
+            {error && (
+              <p className="text-sm text-red-500 text-center">{error}</p>
+            )}
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

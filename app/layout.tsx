@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        
       >
         <SidebarComponent
           logo={<Image src="/logo.jpeg" alt="Logo" width={100} height={100} />}
