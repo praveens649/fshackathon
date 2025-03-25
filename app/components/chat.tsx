@@ -16,7 +16,6 @@ interface ChatMessage {
   message_id: string;
   sender_id: string;
   receiver_id: string;
-  task_id: string;
   content: string;
   created_at: string;
 }
@@ -24,11 +23,10 @@ interface ChatMessage {
 interface ChatProps {
   currentUserId: string | Promise<string>;
   otherUserId: string;
-  taskId: string;
   onClose: () => void;
 }
 
-export default function Chat({ currentUserId, otherUserId, taskId, onClose }: ChatProps) {
+export default function Chat({ currentUserId, otherUserId, onClose }: ChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [otherUserDetails, setOtherUserDetails] = useState<{
@@ -87,53 +85,96 @@ export default function Chat({ currentUserId, otherUserId, taskId, onClose }: Ch
     fetchOtherUserDetails();
   }, [otherUserId]);
 
-  // Fetch existing messages for this task
+  // Fetch existing messages for this conversation
   useEffect(() => {
-    const fetchMessages = async () => {
+    let channel: any;
+
+    const setupRealTimeSubscription = async () => {
       try {
-        const { data, error } = await supabase
-          .from('messages')
+        // Validate user IDs before proceeding
+        if (!resolvedCurrentUserId || !otherUserId) {
+          throw new Error('Invalid user IDs for chat');
+        }
+
+        // Fetch initial messages
+        const { data: initialMessages, error: fetchError } = await supabase
+          .from('chats')
           .select('*')
-          .eq('task_id', taskId)
+          .or(
+            `sender_id.eq.${resolvedCurrentUserId},sender_id.eq.${otherUserId}`
+          )
+          .or(
+            `receiver_id.eq.${resolvedCurrentUserId},receiver_id.eq.${otherUserId}`
+          )
           .order('created_at', { ascending: true });
 
-        if (error) throw error;
-
-        if (data) {
-          setMessages(data);
+        if (fetchError) {
+          console.error('Fetch messages error:', fetchError);
+          throw fetchError;
         }
+
+        if (initialMessages) {
+          setMessages(initialMessages);
+        }
+
+        // Set up real-time subscription
+        channel = supabase
+          .channel(`messages_${resolvedCurrentUserId}_${otherUserId}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'chats',
+              filter: `(sender_id=eq.${resolvedCurrentUserId} AND receiver_id=eq.${otherUserId}) OR (sender_id=eq.${otherUserId} AND receiver_id=eq.${resolvedCurrentUserId})`
+            },
+            (payload) => {
+              const newMsg = payload.new as ChatMessage;
+              
+              // Prevent duplicate messages
+              setMessages((prevMessages) => {
+                const isDuplicate = prevMessages.some(
+                  msg => msg.message_id === newMsg.message_id
+                );
+                
+                return isDuplicate 
+                  ? prevMessages 
+                  : [...prevMessages, newMsg];
+              });
+            }
+          )
+          .subscribe(async (status, err) => {
+            if (status === 'SUBSCRIBED') {
+              console.log('Subscribed to real-time messages');
+            } else if (status === 'CHANNEL_ERROR') {
+              console.error('Channel subscription error:', err);
+              setError(`Could not set up message updates: ${err?.message || 'Unknown error'}`);
+            }
+          });
+
+        // Scroll to bottom after initial messages load
+        scrollToBottom();
       } catch (err) {
-        console.error('Error fetching messages:', err);
-        setError('Could not fetch messages');
+        console.error('Complete real-time setup error:', err);
+        setError(`Could not set up message updates: ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
     };
 
-    // Real-time subscription for new messages
-    const channel = supabase
-      .channel('messages')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `task_id=eq.${taskId}`
-        },
-        (payload) => {
-          const newMsg = payload.new as ChatMessage;
-          setMessages((prevMessages) => [...prevMessages, newMsg]);
-        }
-      )
-      .subscribe();
-
-    fetchMessages();
-    scrollToBottom();
+    if (resolvedCurrentUserId && otherUserId) {
+      setupRealTimeSubscription();
+    }
 
     // Cleanup subscription
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        try {
+          supabase.removeChannel(channel);
+        } catch (err) {
+          console.error('Error removing channel:', err);
+        }
+      }
     };
-  }, [taskId]);
+  }, [resolvedCurrentUserId, otherUserId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -148,17 +189,14 @@ export default function Chat({ currentUserId, otherUserId, taskId, onClose }: Ch
       return;
     }
 
-   
     // Validate UUIDs before sending
     const isCurrentUserIdValid = isValidUUID(resolvedCurrentUserId);
     const isOtherUserIdValid = isValidUUID(otherUserId);
-    const isTaskIdValid = isValidUUID(taskId);
 
-    if (!isCurrentUserIdValid || !isOtherUserIdValid || !isTaskIdValid) {
+    if (!isCurrentUserIdValid || !isOtherUserIdValid) {
       const invalidFields = [
         !isCurrentUserIdValid && 'Current User ID',
         !isOtherUserIdValid && 'Other User ID', 
-        !isTaskIdValid && 'Task ID'
       ].filter(Boolean).join(', ');
 
       setError(`Invalid UUID(s): ${invalidFields}. Please provide valid UUIDs.`);
@@ -167,11 +205,10 @@ export default function Chat({ currentUserId, otherUserId, taskId, onClose }: Ch
 
     try {
       const { error } = await supabase
-        .from('messages')
+        .from('chats')
         .insert({
           sender_id: resolvedCurrentUserId,
           receiver_id: otherUserId,
-          task_id: taskId,
           content: newMessage.trim(),
           created_at: new Date().toISOString()
         });

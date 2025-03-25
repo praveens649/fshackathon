@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { AuthService } from "@/app/backend/auth.service";
 import Chat from "@/app/components/chat";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 interface ChatPageProps {
