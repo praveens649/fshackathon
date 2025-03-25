@@ -30,11 +30,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.className} ${geistMono.className} bg-gray-50`}
       >
         <SidebarComponent
-          logo={<Image src="/logo.jpeg" alt="Logo" width={100} height={100} />}
-          companyName="Study portal"
+          logo={<Image src="/logo.png" alt="Logo" width={100} height={100} />}
+          companyName="NEIGHBOURHOOD HELPER"
           navigationItems={adminNavigation}
           headerUserNav={<UserNavWrapper />}
           breadcrumbItems={{ items: adminBreadcrumb }}

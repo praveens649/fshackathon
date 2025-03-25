@@ -1,11 +1,12 @@
 import { AppSidebar } from "./components/app-sidebar"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
+import { HeroSection } from "./dashboard/_components/dashboard-cards"
 
 export default function Home() {
   return (
     
-    <h1 className="text-4xl ">Hello World</h1>
+   <HeroSection/>
   )
 }
 

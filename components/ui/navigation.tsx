@@ -2,11 +2,11 @@ import type { SidebarGroup,BreadcrumbItems } from '../ui/types'
 
 export const adminNavigation: SidebarGroup[] = [
   {
-    title: "Dashboard",
+    title: "Home",
     url: "/dashboard",
     items: [
       {
-        title: "Dashboard",
+        title: "Home",
         url: "/dashboard",
       },
    
@@ -20,21 +20,33 @@ export const adminNavigation: SidebarGroup[] = [
         title: "Help Desk",
         url: "/help-desk",
       },
+      {
+        title:"Get Help",
+        url:"/help-desk/create"
+      }
    
     ],
   },
   {
-    title: "Groups",
-    url: "/group",
+    title: "Support",
+    url: "/support",
     items: [
       {
-        title: "view groups",
-        url: "/group",
+        title: "Support",
+        url: "/support",
       },
-    {
-        title:"Add groups",
-        url:"/group/create"
-      }
+      
+   
+    ],
+  },
+  {
+    title: "Chats",
+    url: "/chats",
+    items: [
+      {
+        title: "view chats",
+        url: "/chats",
+      },
     ],
   },
  
@@ -42,7 +54,7 @@ export const adminNavigation: SidebarGroup[] = [
 
 export const adminBreadcrumb:BreadcrumbItems['items'] = {
   '/':[{
-    title:'Homepage',
+    title:'Home',
     url:'/'
   }],
   '/profile':[{
