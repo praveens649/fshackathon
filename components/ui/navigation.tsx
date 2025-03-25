@@ -1,3 +1,4 @@
+import Home from '@/app/page';
 import type { SidebarGroup,BreadcrumbItems } from '../ui/types'
 
 export const adminNavigation: SidebarGroup[] = [
