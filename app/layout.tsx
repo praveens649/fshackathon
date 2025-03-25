@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { SidebarComponent  } from "@/components/sidebar/sidebar-component";
+import { adminBreadcrumb, adminNavigation } from "@/components/ui/navigation";
+import { UserNavWrapper } from "@/components/sidebar/user-nav-wrapper";
+import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +32,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <SidebarComponent
+          logo={<Image src="/logo.jpeg" alt="Logo" width={100} height={100} />}
+          companyName="Study portal"
+          navigationItems={adminNavigation}
+          headerUserNav={<UserNavWrapper />}
+          breadcrumbItems={{ items: adminBreadcrumb }}
+          >
+          {children}
+        </SidebarComponent> 
         <Toaster position="bottom-right"/>
       </body>
     </html>
