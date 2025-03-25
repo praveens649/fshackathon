@@ -45,7 +45,7 @@ const LoginForm = () => {
       await authService.login(formData.email, formData.password);
 
       console.log("Login successful!");
-      router.push("/profile");
+      router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred during login");
     } finally {

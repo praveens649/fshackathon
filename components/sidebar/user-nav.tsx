@@ -46,7 +46,10 @@ export function UserNav() {
         }
 
         if (data && data.profile_picture) {
-          setProfilePicture(data.profile_picture);
+          const profilePicUrl = data.profile_picture.startsWith('http') 
+            ? data.profile_picture 
+            : `https://pmydjvruwtpmgqqdlybo.supabase.co/storage/v1/object/public/profile-pictures/${data.profile_picture}`;
+          setProfilePicture(profilePicUrl);
         }
       } catch (error) {
         console.error("Failed to fetch user profile:", error);

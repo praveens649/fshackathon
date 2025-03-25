@@ -53,7 +53,7 @@ const SignUpForm = () => {
       });
   
       console.log("User signed up successfully!", user);
-      router.push("/login"); // 👈 redirect to login page
+      router.push("/profile"); // 👈 redirect to login page
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred during signup");
     } finally {
