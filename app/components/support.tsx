@@ -112,7 +112,47 @@ useEffect(() => {
 
   fetchUserAndTasks();
 }, []);
+const supportTask = async (taskId: string) => {
+  try {
+    if (!currentUserId) {
+      throw new Error("User not authenticated");
+    }
 
+    // Update task to mark as accepted by current user and change status
+    const { data, error } = await supabase
+      .from("tasks")
+      .update({
+        accepted_by: currentUserId,
+        status: "Completed",
+      })
+      .eq("task_id", taskId)
+      .select(); // Select to get the updated task details
+
+    if (error) throw error;
+
+    // Remove the task from the local state
+    setTasks((prevTasks) =>
+      prevTasks.filter((task) => task.task_id !== taskId)
+    );
+
+    // Optional: Show a success toast or notification
+    console.log("Task supported successfully!");
+
+  } catch (err) {
+    // Log the full error for debugging
+    console.error("Error supporting task:", err);
+
+    // Show a user-friendly error message
+    setError(
+      err instanceof Error
+        ? err.message
+        : "An error occurred while supporting the task"
+    );
+
+    // Optional: Show an error toast
+    console.error("Failed to support task. Please try again.");
+  }
+};
   const initiateChat = async (creatorId: string) => {
     // Navigate to the chat page for this task, passing the creator's user_id
     router.push(`chats/${creatorId}`);
