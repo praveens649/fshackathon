@@ -91,30 +91,36 @@ export default function Chat({ currentUserId, otherUserId, onClose }: ChatProps)
 
     const setupRealTimeSubscription = async () => {
       try {
-        // Validate user IDs before proceeding
-        if (!resolvedCurrentUserId || !otherUserId) {
-          throw new Error('Invalid user IDs for chat');
+        // Validate authentication and user IDs
+        if (!resolvedCurrentUserId) {
+          throw new Error('Current user not authenticated');
+        }
+
+        if (!otherUserId) {
+          throw new Error('Other user ID is missing');
         }
 
         // Fetch initial messages
         const { data: initialMessages, error: fetchError } = await supabase
           .from('chats')
           .select('*')
-          .or(
-            `sender_id.eq.${resolvedCurrentUserId},sender_id.eq.${otherUserId}`
-          )
-          .or(
-            `receiver_id.eq.${resolvedCurrentUserId},receiver_id.eq.${otherUserId}`
-          )
+          .or(`sender_id.eq.${resolvedCurrentUserId},sender_id.eq.${otherUserId}`)
+          .or(`receiver_id.eq.${resolvedCurrentUserId},receiver_id.eq.${otherUserId}`)
           .order('created_at', { ascending: true });
 
         if (fetchError) {
-          console.error('Fetch messages error:', fetchError);
+          console.error('Message fetch error:', fetchError);
           throw fetchError;
         }
 
         if (initialMessages) {
-          setMessages(initialMessages);
+          // Filter messages to ensure they are between the two specific users
+          const filteredMessages = initialMessages.filter(
+            msg => 
+              (msg.sender_id === resolvedCurrentUserId && msg.receiver_id === otherUserId) ||
+              (msg.sender_id === otherUserId && msg.receiver_id === resolvedCurrentUserId)
+          );
+          setMessages(filteredMessages);
         }
 
         // Set up real-time subscription
@@ -146,20 +152,20 @@ export default function Chat({ currentUserId, otherUserId, onClose }: ChatProps)
           .subscribe(async (status, err) => {
             if (status === 'SUBSCRIBED') {
               console.log('Subscribed to real-time messages');
-            } else if (status === 'CHANNEL_ERROR') {
-              console.error('Channel subscription error:', err);
-              setError(`Could not set up message updates: ${err?.message || 'Unknown error'}`);
+            } else {
+              console.error('Subscription status error:', status, err);
             }
           });
 
         // Scroll to bottom after initial messages load
         scrollToBottom();
       } catch (err) {
-        console.error('Complete real-time setup error:', err);
+        console.error('Real-time subscription setup error:', err);
         setError(`Could not set up message updates: ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
     };
 
+    // Ensure both user IDs are present before setting up subscription
     if (resolvedCurrentUserId && otherUserId) {
       setupRealTimeSubscription();
     }
@@ -169,8 +175,8 @@ export default function Chat({ currentUserId, otherUserId, onClose }: ChatProps)
       if (channel) {
         try {
           supabase.removeChannel(channel);
-        } catch (err) {
-          console.error('Error removing channel:', err);
+        } catch (removeErr) {
+          console.error('Error removing channel:', removeErr);
         }
       }
     };

@@ -62,7 +62,6 @@ export default function ChatPage({ params }: ChatPageProps) {
     <Chat 
       currentUserId={currentUserId} 
       otherUserId={otherUserId} 
-      taskId={id} 
       onClose={handleClose} 
     />
   );
