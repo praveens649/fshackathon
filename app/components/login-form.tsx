@@ -49,7 +49,7 @@ const LoginForm = () => {
 
       
       console.log("Login successful!");
-      router.push('/');
+      router.push('/profile');
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred during login");
     } finally {
