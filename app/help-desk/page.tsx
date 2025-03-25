@@ -7,6 +7,17 @@ import { AuthService } from "@/app/backend/auth.service";
 import supabase from "@/lib/supabase";
 import Link from "next/link";
 import { format } from "date-fns";
+import { 
+  PlusCircle, 
+  Clock, 
+  CheckCircle2, 
+  AlertCircle, 
+  Package, 
+  UtensilsCrossed, 
+  ShoppingBag,
+  Calendar,
+  Loader2
+} from "lucide-react";
 
 interface Task {
   task_id: string;
@@ -86,8 +97,20 @@ export default function HelpDesk() {
     }
   };
 
+  const getTaskTypeIcon = (type: Task['task_type']) => {
+    switch (type) {
+      case 'Borrow': return <Package className="w-4 h-4" />;
+      case 'Meal Share': return <UtensilsCrossed className="w-4 h-4" />;
+      case 'Errand': return <ShoppingBag className="w-4 h-4" />;
+    }
+  };
+
   if (isLoading) {
-    return <div className="text-center mt-10">Loading tasks...</div>;
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   if (error) {
@@ -95,22 +118,29 @@ export default function HelpDesk() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Tasks</h1>
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">My Tasks</h1>
         <Link href="/help-desk/create">
-          <Button>Create New Task</Button>
+          <Button className="flex items-center gap-2">
+            <PlusCircle className="w-5 h-5" />
+            Create New Task
+          </Button>
         </Link>
       </div>
 
       {/* Status Filter */}
-      <div className="flex space-x-2 mb-4">
+      <div className="flex space-x-2 mb-6 bg-muted/30 p-2 rounded-lg">
         {['All', 'Pending', 'In Progress', 'Completed'].map((status) => (
           <Button
             key={status}
-            variant={filter === status ? 'default' : 'outline'}
+            variant={filter === status ? 'default' : 'ghost'}
             onClick={() => setFilter(status as typeof filter)}
+            className="flex-1"
           >
+            {status === 'Pending' && <AlertCircle className="w-4 h-4 mr-2" />}
+            {status === 'In Progress' && <Clock className="w-4 h-4 mr-2" />}
+            {status === 'Completed' && <CheckCircle2 className="w-4 h-4 mr-2" />}
             {status}
           </Button>
         ))}
@@ -118,45 +148,62 @@ export default function HelpDesk() {
 
       {/* Tasks List */}
       {filteredTasks.length === 0 ? (
-        <p className="text-center text-gray-500 mt-10">
-          {filter === 'All' 
-            ? "You haven't created any tasks yet." 
-            : `No ${filter.toLowerCase()} tasks found.`}
-        </p>
+        <div className="text-center py-12 bg-muted/30 rounded-lg">
+          <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-lg text-muted-foreground">
+            {filter === 'All' 
+              ? "You haven't created any tasks yet." 
+              : `No ${filter.toLowerCase()} tasks found.`}
+          </p>
+        </div>
       ) : (
         <div className="grid gap-4">
           {filteredTasks.map((task) => (
-            <Card key={task.task_id}>
+            <Card key={task.task_id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-lg">{task.title}</CardTitle>
-                <Badge variant={getStatusBadgeVariant(task.status)}>
+                <div className="flex items-center gap-2">
+                  {getTaskTypeIcon(task.task_type)}
+                  <CardTitle className="text-xl">{task.title}</CardTitle>
+                </div>
+                <Badge 
+                  variant={getStatusBadgeVariant(task.status)}
+                  className="flex items-center gap-1"
+                >
+                  {task.status === 'Pending' && <AlertCircle className="w-3 h-3" />}
+                  {task.status === 'In Progress' && <Clock className="w-3 h-3" />}
+                  {task.status === 'Completed' && <CheckCircle2 className="w-3 h-3" />}
                   {task.status}
                 </Badge>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {task.description && (
-                    <p className="text-sm text-gray-600">{task.description}</p>
+                    <p className="text-sm text-muted-foreground">{task.description}</p>
                   )}
-                  <div className="flex justify-between items-center text-sm text-gray-500">
-                    <span>{task.task_type}</span>
+                  <div className="flex justify-between items-center text-sm text-muted-foreground border-t pt-3">
+                    <span className="flex items-center gap-2">
+                      {getTaskTypeIcon(task.task_type)}
+                      {task.task_type}
+                    </span>
                     {task.due_date && (
-                      <span>
+                      <span className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
                         Due: {format(new Date(task.due_date), 'PPP')}
                       </span>
                     )}
                   </div>
-                  <div className="flex space-x-2 mt-2">
+                  <div className="flex space-x-2 mt-4">
                     {task.status !== 'Completed' && (
                       <Button 
                         size="sm" 
                         variant="outline"
                         onClick={() => updateTaskStatus(task.task_id, 'Completed')}
+                        className="flex items-center gap-2"
                       >
+                        <CheckCircle2 className="w-4 h-4" />
                         Mark as Completed
                       </Button>
                     )}
-                    
                   </div>
                 </div>
               </CardContent>

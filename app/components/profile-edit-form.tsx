@@ -186,15 +186,16 @@ export default function ProfileEditForm() {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-10">
-      <CardHeader>
-        <CardTitle>Complete Your Profile</CardTitle>
+    <Card className="w-full max-w-2xl mx-auto mt-10 shadow-lg">
+      <CardHeader className="space-y-2 text-center border-b pb-7 pt-9">
+        <CardTitle className="text-3xl font-bold text-gray-800">Complete Your Profile</CardTitle>
+        <p className="text-gray-500">Share your information with the community</p>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="pt-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Profile Picture Upload */}
-          <div className="flex flex-col items-center mb-4">
-            <Label htmlFor="profilePicture" className="mb-2">Profile Picture</Label>
+          <div className="flex flex-col items-center mb-8">
+            <Label htmlFor="profilePicture" className="mb-4 text-lg font-medium">Profile Picture</Label>
             <input
               id="profilePicture"
               type="file"
@@ -202,93 +203,116 @@ export default function ProfileEditForm() {
               onChange={handleProfilePictureChange}
               className="hidden"
             />
-            <div className="relative w-32 h-32 rounded-full overflow-hidden">
+            <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-gray-100 shadow-md hover:border-primary/20 transition-all duration-200">
               {profilePicturePreview ? (
                 <Image 
                   src={profilePicturePreview} 
                   alt="Profile Preview" 
                   layout="fill" 
                   objectFit="cover" 
-                  className="cursor-pointer"
+                  className="cursor-pointer hover:opacity-90 transition-opacity"
                   onClick={() => document.getElementById('profilePicture')?.click()}
                 />
               ) : (
                 <div 
-                  className="w-full h-full bg-gray-200 flex items-center justify-center cursor-pointer"
+                  className="w-full h-full bg-gray-50 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() => document.getElementById('profilePicture')?.click()}
                 >
-                  Upload Picture
+                  <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span className="text-sm text-gray-500">Upload Picture</span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Name Field */}
-          <div>
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="Enter your full name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Name Field */}
+            <div className="col-span-2 md:col-span-1">
+              <Label htmlFor="name" className="text-base font-medium mb-2 block">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Enter your full name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="h-11 px-4 border-gray-200 focus:border-primary/50"
+              />
+            </div>
 
-          {/* Location Field */}
-          <div>
-            <Label htmlFor="location">Location</Label>
-            <Select 
-              name="location"
-              value={formData.location}
-              onValueChange={(value) => setFormData((prev) => ({
-                ...prev,
-                location: value
-              }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select your location" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="Chennai">Chennai</SelectItem>
-                <SelectItem value="Coimbatore">Coimbatore</SelectItem>
-                <SelectItem value="Madurai">Madurai</SelectItem>
-                <SelectItem value="Trichy">Tiruchirappalli</SelectItem>
-                <SelectItem value="Salem">Salem</SelectItem>
-                <SelectItem value="Erode">Erode</SelectItem>
-                <SelectItem value="Tirunelveli">Tirunelveli</SelectItem>
-                <SelectItem value="Vellore">Vellore</SelectItem>
-                <SelectItem value="Kancheepuram">Kancheepuram</SelectItem>
-                <SelectItem value="Thanjavur">Thanjavur</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Location Field */}
+            <div className="col-span-2 md:col-span-1">
+              <Label htmlFor="location" className="text-base font-medium mb-2 block">Location</Label>
+              <Select 
+                name="location"
+                value={formData.location}
+                onValueChange={(value) => setFormData((prev) => ({
+                  ...prev,
+                  location: value
+                }))}
+              >
+                <SelectTrigger className="h-11 border-gray-200 focus:border-primary/50">
+                  <SelectValue placeholder="Select your location" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="Chennai">Chennai</SelectItem>
+                  <SelectItem value="Coimbatore">Coimbatore</SelectItem>
+                  <SelectItem value="Madurai">Madurai</SelectItem>
+                  <SelectItem value="Trichy">Tiruchirappalli</SelectItem>
+                  <SelectItem value="Salem">Salem</SelectItem>
+                  <SelectItem value="Erode">Erode</SelectItem>
+                  <SelectItem value="Tirunelveli">Tirunelveli</SelectItem>
+                  <SelectItem value="Vellore">Vellore</SelectItem>
+                  <SelectItem value="Kancheepuram">Kancheepuram</SelectItem>
+                  <SelectItem value="Thanjavur">Thanjavur</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Bio Field */}
-          <div>
-            <Label htmlFor="bio">Bio (Optional)</Label>
-            <Input
-              id="bio"
-              name="bio"
-              type="text"
-              placeholder="Tell us about yourself"
-              value={formData.bio}
-              onChange={handleChange}
-            />
+            {/* Bio Field */}
+            <div className="col-span-2">
+              <Label htmlFor="bio" className="text-base font-medium mb-2 block">Bio (Optional)</Label>
+              <Input
+                id="bio"
+                name="bio"
+                type="text"
+                placeholder="Tell us about yourself"
+                value={formData.bio}
+                onChange={handleChange}
+                className="h-11 px-4 border-gray-200 focus:border-primary/50"
+              />
+            </div>
           </div>
-
-          {/* Submit Button */}
-          <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? "Updating Profile..." : "Save Profile"}
-          </Button>
 
           {/* Error Message */}
           {error && (
-            <p className="text-sm text-red-500 mt-2">{error}</p>
+            <div className="bg-red-50 p-4 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
           )}
+
+          {/* Submit Button */}
+          <Button 
+            type="submit" 
+            disabled={isLoading} 
+            className="w-full h-11 mt-6 text-base font-medium transition-all duration-200 hover:opacity-90"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Updating Profile...
+              </div>
+            ) : (
+              "Save Profile"
+            )}
+          </Button>
         </form>
       </CardContent>
     </Card>

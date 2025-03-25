@@ -7,7 +7,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AuthService } from "@/app/backend/auth.service";
 import supabase from "@/lib/supabase";
 import { format } from "date-fns";
-import { MessageCircle } from "lucide-react";
+import { 
+  MessageCircle, 
+  MapPin, 
+  Calendar, 
+  HandHelpingIcon, 
+  UtensilsCrossed, 
+  ShoppingBag,
+  Filter,
+  Loader2
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Task {
@@ -113,8 +122,24 @@ export default function Support() {
     (locationFilter === 'All' || task.location === locationFilter)
   );
 
+  const getTaskTypeIcon = (type: string) => {
+    switch(type) {
+      case 'Borrow': return <HandHelpingIcon className="h-4 w-4" />;
+      case 'Meal Share': return <UtensilsCrossed className="h-4 w-4" />;
+      case 'Errand': return <ShoppingBag className="h-4 w-4" />;
+      default: return null;
+    }
+  };
+
   if (isLoading) {
-    return <div className="text-center mt-10">Loading tasks...</div>;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading tasks...</span>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -124,70 +149,94 @@ export default function Support() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Community Tasks</h1>
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <HandHelpingIcon className="h-6 w-6" />
+          Community Tasks
+        </h1>
       </div>
 
-      {/* Location Filter */}
-      <div className="mb-4">
+      {/* Enhanced Location Filter */}
+      <div className="mb-6">
         <Select 
           value={locationFilter}
           onValueChange={setLocationFilter}
         >
-          <SelectTrigger>
-            <SelectValue placeholder="Filter by Location" />
+          <SelectTrigger className="w-[200px] bg-white">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              <SelectValue placeholder="Filter by Location" />
+            </div>
           </SelectTrigger>
-          <SelectContent className="bg-white">
+          <SelectContent>
             {LOCATIONS.map((location) => (
               <SelectItem key={location} value={location}>
-                {location}
+                <div className="flex items-center gap-2">
+                  {location !== 'All' && <MapPin className="h-4 w-4" />}
+                  {location}
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Tasks List */}
+      {/* Enhanced Tasks List */}
       {filteredTasks.length === 0 ? (
-        <p className="text-center text-gray-500 mt-10">
-          {locationFilter === 'All' 
+        <div className="text-center text-gray-500 mt-10 flex flex-col items-center gap-2">
+          <Filter className="h-8 w-8" />
+          <p>{locationFilter === 'All' 
             ? "No tasks available." 
-            : `No tasks found in ${locationFilter}.`}
-        </p>
+            : `No tasks found in ${locationFilter}.`}</p>
+        </div>
       ) : (
         <div className="grid gap-4">
           {filteredTasks.map((task) => (
-            <Card key={task.task_id}>
+            <Card key={task.task_id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-lg">{task.title}</CardTitle>
-                <Badge variant="secondary">{task.location}</Badge>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  {getTaskTypeIcon(task.task_type)}
+                  {task.title}
+                </CardTitle>
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {task.location}
+                </Badge>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {task.description && (
                     <p className="text-sm text-gray-600">{task.description}</p>
                   )}
                   <div className="flex justify-between items-center text-sm text-gray-500">
-                    <span>{task.task_type}</span>
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      {getTaskTypeIcon(task.task_type)}
+                      {task.task_type}
+                    </Badge>
                     {task.due_date && (
-                      <span>
-                        Due: {format(new Date(task.due_date), 'PPP')}
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        {format(new Date(task.due_date), 'PPP')}
                       </span>
                     )}
                   </div>
-                  <div className="flex space-x-2 mt-2">
+                  <div className="flex space-x-2 mt-4">
                     <Button 
                       size="sm" 
                       variant="default"
+                      className="flex items-center gap-2"
                       onClick={() => supportTask(task.task_id)}
                     >
+                      <HandHelpingIcon className="h-4 w-4" />
                       Support Task
                     </Button>
                     <Button 
                       size="sm" 
                       variant="outline"
+                      className="flex items-center gap-2"
                       onClick={() => initiateChat(task.created_by, task.task_id)}
                     >
-                      <MessageCircle className="mr-2 h-4 w-4" /> Chat
+                      <MessageCircle className="h-4 w-4" />
+                      Chat
                     </Button>
                   </div>
                 </div>
