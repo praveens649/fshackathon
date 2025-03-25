@@ -5,8 +5,8 @@ import { HeroSection } from "./dashboard/_components/dashboard-cards"
 
 export default function Home() {
   return (
-    <></>
-  //  <HeroSection/>
+  
+   <HeroSection/>
   )
 }
 
