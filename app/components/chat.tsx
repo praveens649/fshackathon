@@ -35,6 +35,7 @@ export default function Chat({ currentUserId, otherUserId, onClose }: ChatProps)
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [resolvedCurrentUserId, setResolvedCurrentUserId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -54,6 +55,7 @@ export default function Chat({ currentUserId, otherUserId, onClose }: ChatProps)
     };
 
     resolveCurrentUserId();
+    
   }, [currentUserId]);
 
   // Fetch other user's details
@@ -69,6 +71,10 @@ export default function Chat({ currentUserId, otherUserId, onClose }: ChatProps)
         if (error) throw error;
 
         if (data) {
+            const profilePicUrl = data.profile_picture.startsWith('http') 
+            ? data.profile_picture 
+            : `https://pmydjvruwtpmgqqdlybo.supabase.co/storage/v1/object/public/profile-pictures/${data.profile_picture}`;
+          setProfilePicture(profilePicUrl);
           setOtherUserDetails({
             name: data.name,
             profile_picture: data.profile_picture
@@ -250,10 +256,10 @@ export default function Chat({ currentUserId, otherUserId, onClose }: ChatProps)
       {/* Chat Header */}
       <div className="flex justify-between items-center p-4 border-b">
         <div className="flex items-center space-x-2">
-          {otherUserDetails?.profile_picture && (
+          {profilePicture && (
             <img 
-              src={otherUserDetails.profile_picture} 
-              alt={otherUserDetails.name} 
+              src={profilePicture} 
+              alt={otherUserDetails?.name || 'User'} 
               className="w-8 h-8 rounded-full"
             />
           )}
