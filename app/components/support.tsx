@@ -65,90 +65,71 @@ export default function Support() {
     "All",
   ];
 
-  useEffect(() => {
-    const fetchUserAndTasks = async () => {
-      try {
-        setIsLoading(true);
-        const userId = await authService.getCurrentUserId();
-        if (!userId) {
-          throw new Error("User not authenticated");
-        }
-        setCurrentUserId(userId);
-
-        // Fetch current user's location
-        const { data: userData, error: userError } = await supabase
-          .from("users")
-          .select("location")
-          .eq("user_id", userId)
-          .single();
-
-        if (userError) throw userError;
-        setCurrentUserLocation(userData.location);
-
-        // Fetch tasks not created by the current user
-        const { data, error } = await supabase
-          .from("tasks")
-          .select("*")
-          .neq("created_by", userId)
-          .is("accepted_by", null)
-          .order("created_at", { ascending: false });
-
-        if (error) throw error;
-
-        setTasks(data || []);
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "An error occurred while fetching tasks"
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUserAndTasks();
-  }, []);
-
-  const supportTask = async (taskId: string) => {
+useEffect(() => {
+  const fetchUserAndTasks = async () => {
     try {
-      if (!currentUserId) {
+      setIsLoading(true);
+      const userId = await authService.getCurrentUserId();
+      if (!userId) {
         throw new Error("User not authenticated");
       }
+      setCurrentUserId(userId);
 
-      // Update task to mark as accepted by current user
-      const { error } = await supabase
+      // Fetch current user's location
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("location")
+        .eq("user_id", userId)
+        .single();
+
+      if (userError) throw userError;
+      setCurrentUserLocation(userData.location);
+
+      // Fetch tasks not created by the current user
+      const { data, error } = await supabase
         .from("tasks")
-        .update({
-          accepted_by: currentUserId,
-          status: "Completed",
-        })
-        .eq("task_id", taskId);
+        .select("*")
+        .neq("created_by", userId)
+        .is("accepted_by", null)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      // Remove the task from the local state
-      setTasks((prevTasks) =>
-        prevTasks.filter((task) => task.task_id !== taskId)
-      );
+      console.log('Fetched Tasks:', data);
+      console.log('Current User Location:', userData.location);
+
+      setTasks(data || []);
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "An error occurred while supporting the task"
+          : "An error occurred while fetching tasks"
       );
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  fetchUserAndTasks();
+}, []);
 
   const initiateChat = async (creatorId: string) => {
     // Navigate to the chat page for this task, passing the creator's user_id
     router.push(`chats/${creatorId}`);
   };
 
-  const filteredTasks = tasks.filter(
-    (task) => locationFilter === "All" || task.location === locationFilter
-  );
-
+const filteredTasks = tasks.filter((task) => {
+  // If filter is 'All', show all tasks
+  if (locationFilter === 'All') return true;
+  
+  // If current user's location is set, prioritize tasks in the same location
+  if (currentUserLocation && locationFilter === currentUserLocation) {
+    return task.location === currentUserLocation;
+  }
+  
+  // Otherwise, filter by the selected location
+  return task.location === locationFilter;
+});
   const getTaskTypeIcon = (type: string) => {
     switch (type) {
       case "Borrow":

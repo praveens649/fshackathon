@@ -33,6 +33,7 @@ import {
   FileText,
   ArrowLeft,
   AlertCircle,
+  HandHelpingIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -44,7 +45,7 @@ import Link from "next/link";
 interface TaskFormData {
   title: string;
   description: string;
-  taskType: "Borrow" | "Meal Share" | "Errand";
+  taskType: "Borrow" | "Meal Share" | "Errand" | "Support";
   dueDate: Date | undefined;
 }
 
@@ -122,6 +123,8 @@ export default function HelpDeskForm() {
         return <UtensilsCrossed className="h-4 w-4" />;
       case "Errand":
         return <ShoppingBag className="h-4 w-4" />;
+      case "Support":
+        return <HandHelpingIcon className="h-4 w-4" />;
     }
   };
 
