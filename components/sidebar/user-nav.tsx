@@ -65,7 +65,7 @@ export function UserNav() {
 
   return (
     <DropdownMenu>
-       <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8 border border-primary/10">
             <AvatarImage src={profilePicture || ""} alt={email} className="object-cover" />
@@ -75,24 +75,27 @@ export function UserNav() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent 
+        className="w-56 bg-white/80 backdrop-blur-lg backdrop-saturate-150 border border-gray-200/20 shadow-xl"
+        align="end" 
+        forceMount
+      >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-xs leading-none text-muted-foreground">
-              {email}
-            </p>
+            <p className="text-sm font-medium text-gray-900">{email}</p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
+        <DropdownMenuSeparator className="bg-gray-200/50" />
+        <DropdownMenuItem asChild className="focus:bg-gray-100/80">
           <a href="/profile/edit" className="cursor-pointer flex w-full items-center">
             <span>Edit Profile</span>
           </a>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-red-600 cursor-pointer p-0">
+        <DropdownMenuSeparator className="bg-gray-200/50" />
+        <DropdownMenuItem className="text-red-600 cursor-pointer p-0 focus:bg-gray-100/80">
           <LogoutButton showIcon className="justify-start" />
         </DropdownMenuItem>
       </DropdownMenuContent>
-    </DropdownMenu>  );
+    </DropdownMenu>
+  );
 }

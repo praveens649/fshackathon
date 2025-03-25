@@ -20,6 +20,22 @@ export const adminNavigation: SidebarGroup[] = [
         title: "Help Desk",
         url: "/help-desk",
       },
+      {
+        title:"Get Help",
+        url:"/help-desk/create"
+      }
+   
+    ],
+  },
+  {
+    title: "Support",
+    url: "/support",
+    items: [
+      {
+        title: "Support",
+        url: "/support",
+      },
+      
    
     ],
   },
