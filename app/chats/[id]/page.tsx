@@ -4,7 +4,15 @@ import { AuthService } from "@/app/backend/auth.service";
 import Chat from "@/app/components/chat";
 import supabase from "@/lib/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { 
+  Loader2, 
+  AlertCircle, 
+  MessageSquareX, 
+  ArrowLeft,
+  UserX 
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function ChatDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -83,34 +91,84 @@ export default function ChatDetailPage({ params }: { params: { id: string } }) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      <div className="container mx-auto px-4 py-8">
+        <Card className="max-w-2xl mx-auto">
+          <CardContent className="flex items-center justify-center p-8 space-x-2">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span className="text-gray-600">Loading chat...</span>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen text-red-500">
-        {error}
+      <div className="container mx-auto px-4 py-8">
+        <Card className="max-w-2xl mx-auto">
+          <CardContent className="p-8">
+            <div className="flex flex-col items-center justify-center text-red-500 space-y-4">
+              <AlertCircle className="h-12 w-12" />
+              <p className="text-center">{error}</p>
+              <Button 
+                variant="outline" 
+                onClick={handleClose}
+                className="flex items-center space-x-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Back to Chats</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  // Ensure we have both currentUserId and otherUserId
   if (!currentUserId || !otherUserId) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p>Unable to start chat</p>
+      <div className="container mx-auto px-4 py-8">
+        <Card className="max-w-2xl mx-auto">
+          <CardContent className="p-8">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <MessageSquareX className="h-12 w-12 text-gray-400" />
+              <p className="text-gray-600">Unable to start chat</p>
+              <Button 
+                variant="outline" 
+                onClick={handleClose}
+                className="flex items-center space-x-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Back to Chats</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <Chat 
-      currentUserId={currentUserId} 
-      otherUserId={otherUserId} 
-      onClose={handleClose} 
-    />
+    <div className="container mx-auto h-screen p-4">
+      <div className="flex flex-col h-full">
+        <Button 
+          variant="ghost" 
+          onClick={handleClose} 
+          className="self-start mb-4 flex items-center space-x-2 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Chats</span>
+        </Button>
+        
+        <div className="flex-1 overflow-hidden rounded-lg shadow-lg">
+          <Chat 
+            currentUserId={currentUserId} 
+            otherUserId={otherUserId} 
+            onClose={handleClose}
+            
+          />
+        </div>
+      </div>
+    </div>
   );
 }
