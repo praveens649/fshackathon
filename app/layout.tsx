@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        
+        className={`${geistSans.className} ${geistMono.className} bg-gray-50`}
       >
         <SidebarComponent
           logo={<Image src="/logo.png" alt="Logo" width={100} height={100} />}
